@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,6 +22,10 @@ public class Url {
 
     private String url;
     private String shortCode;
+
+    // how many times GET /shorten/{shortCode} has fetched this row
+    @Column(nullable = false)
+    private int stats = 0;
 
     // Hibernate sets these automatically on insert/update — never touch them in code
     @CreationTimestamp
@@ -57,6 +62,10 @@ public class Url {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public int getStats() {
+        return stats;
     }
 
     // setters — only for fields a client may actually change

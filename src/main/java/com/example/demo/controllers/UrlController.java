@@ -5,11 +5,13 @@ import com.example.demo.model.Url;
 import com.example.demo.repository.UrlRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -40,9 +42,21 @@ public class UrlController {
         return urlRepository.save(existing);
     }
 
-    // GET /shorten/{shortCode} → look up by short code
+    // DELETE /shorten/{shortCode} → remove the short URL
+    // 204 on success, 404 when the code doesn't exist
+    @DeleteMapping("/shorten/{shortCode}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUrl(@PathVariable String shortCode) {
+        Url existing = findByCode(shortCode);
+        urlRepository.delete(existing);
+    }
+
+    // GET /shorten/{shortCode} → look up by short code, bump the stats counter.
+    // The increment runs as a direct UPDATE on the stats column only, so
+    // @UpdateTimestamp (updatedAt) keeps tracking real edits, not stats hits.
     @GetMapping("/shorten/{shortCode}")
     public Url getByCode(@PathVariable String shortCode) {
+        urlRepository.incrementStats(shortCode);
         return findByCode(shortCode);
     }
 
