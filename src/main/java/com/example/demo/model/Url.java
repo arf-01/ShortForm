@@ -1,24 +1,41 @@
 package com.example.demo.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "urls")
 public class Url {
+
+    // DB-assigned AUTO_INCREMENT id — never set it from code
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     private String url;
     private String shortCode;
+
+    // Hibernate sets these automatically on insert/update — never touch them in code
+    @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    // used by Jackson when deserializing the POST body
-    public Url() {
+    // required by Hibernate to instantiate entities when loading rows
+    protected Url() {
     }
 
-    public Url(int id, String url, String shortCode, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
+    public Url(String url, String shortCode) {
         this.url = url;
         this.shortCode = shortCode;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
     }
 
     // getters — Jackson uses these to serialize the response
@@ -42,24 +59,8 @@ public class Url {
         return updatedAt;
     }
 
-    // setters — Jackson uses these to fill fields from the request body
-    public void setId(int id) {
-        this.id = id;
-    }
-
+    // setters — only for fields a client may actually change
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    public void setShortCode(String shortCode) {
-        this.shortCode = shortCode;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
     }
 }
