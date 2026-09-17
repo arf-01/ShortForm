@@ -94,7 +94,7 @@ lookupForm.addEventListener("submit", async (event) => {
   setMessage(lookupMessage, "Looking up...");
   const code = new FormData(lookupForm).get("code").trim();
   try {
-    const found = await request(`/shorten/${encodeURIComponent(code)}`);
+    const found = await request(`/search/${encodeURIComponent(code)}`);
     showResult(found);
     setMessage(lookupMessage, "Found.");
   } catch (error) {

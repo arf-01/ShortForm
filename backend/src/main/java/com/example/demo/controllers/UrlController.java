@@ -5,6 +5,7 @@ import com.example.demo.model.Url;
 import com.example.demo.repository.UrlRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.net.URI;
 import java.util.concurrent.ThreadLocalRandom;
 
 @RestController
@@ -53,13 +55,21 @@ public class UrlController {
         urlRepository.delete(existing);
     }
 
-    // GET /shorten/{shortCode} → look up by short code, bump the stats counter.
-    // The increment runs as a direct UPDATE on the stats column only, so
-    // @UpdateTimestamp (updatedAt) keeps tracking real edits, not stats hits.
+    // GET /search/{shortCode} → look up a code for the Find button.
+    @GetMapping("/search/{shortCode}")
+    public Url getByCode(@PathVariable String shortCode){
+    return findByCode(shortCode);
+    }
+
+    // GET /shorten/{shortCode} -> redirect a browser to the original URL
     @GetMapping("/shorten/{shortCode}")
-    public Url getByCode(@PathVariable String shortCode) {
+    public ResponseEntity<Void> redirect(@PathVariable String shortCode) {
+        Url existing = findByCode(shortCode);
         urlRepository.incrementStats(shortCode);
-        return findByCode(shortCode);
+
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create(existing.getUrl()))
+                .build();
     }
 
     private Url findByCode(String shortCode) {
