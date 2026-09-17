@@ -21,6 +21,7 @@ public class Url {
     private int id;
 
     private String url;
+    @Column(nullable = false, unique = true)
     private String shortCode;
 
     // how many times GET /shorten/{shortCode} has fetched this row

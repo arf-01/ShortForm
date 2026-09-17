@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shorten it</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="."><span class="brand-mark">↗</span> shortform</a>
+      <span class="status"><span class="status-dot"></span> API connected</span>
+    </header>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="kicker">LINK WORKSHOP / 01</p>
+        <h1>Make the long<br><em>story</em> shorter.</h1>
+        <p class="lede">Turn an unwieldy URL into a clean, shareable link. Keep an eye on its reach while you are here.</p>
+      </div>
+      <div class="hero-note">YOUR LINKS<br><strong>STAY YOURS</strong></div>
+    </section>
+
+    <section class="workspace" aria-label="URL shortener">
+      <div class="panel create-panel">
+        <div class="panel-heading">
+          <span class="eyebrow">CREATE A LINK</span>
+          <span class="step">01 / 03</span>
+        </div>
+        <form id="shorten-form">
+          <label for="url-input">Paste your destination</label>
+          <div class="input-row">
+            <input id="url-input" name="url" type="url" placeholder="https://example.com/a-very-long-link" required>
+            <button type="submit" class="primary-button">Shorten <span>↗</span></button>
+          </div>
+          <p class="form-message" id="form-message" role="status"></p>
+        </form>
+      </div>
+
+      <div class="panel lookup-panel">
+        <div class="panel-heading">
+          <span class="eyebrow">MANAGE A LINK</span>
+          <span class="step">02 / 03</span>
+        </div>
+        <form id="lookup-form">
+          <label for="code-input">Enter a short code</label>
+          <div class="input-row">
+            <input id="code-input" name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="483920" required>
+            <button type="submit" class="secondary-button">Find <span>→</span></button>
+          </div>
+          <p class="form-message" id="lookup-message" role="status"></p>
+        </form>
+      </div>
+    </section>
+
+    <section class="result-panel" id="result-panel" hidden>
+      <div class="result-topline">
+        <span class="eyebrow">LINK DETAILS</span>
+        <span class="result-code" id="result-code"></span>
+      </div>
+      <div class="result-grid">
+        <div>
+          <p class="result-label">SHORT LINK</p>
+          <a id="short-link" class="short-link" href="#" target="_blank" rel="noreferrer"></a>
+          <button id="copy-button" class="text-button" type="button">Copy link</button>
+        </div>
+        <div class="destination-block">
+          <p class="result-label">DESTINATION</p>
+          <p id="destination" class="destination"></p>
+        </div>
+        <div class="stats-block">
+          <p class="result-label">CLICKS</p>
+          <p id="stats" class="stats">0</p>
+        </div>
+      </div>
+      <div class="result-actions">
+        <button id="edit-button" class="secondary-button" type="button">Edit destination <span>↗</span></button>
+        <button id="delete-button" class="danger-button" type="button">Delete link</button>
+      </div>
+      <form id="edit-form" class="edit-form" hidden>
+        <label for="edit-url-input">New destination</label>
+        <div class="input-row">
+          <input id="edit-url-input" type="url" required>
+          <button type="submit" class="primary-button">Save <span>↗</span></button>
+        </div>
+      </form>
+    </section>
+
+    <section class="recent-section">
+      <div class="section-heading">
+        <div><span class="eyebrow">RECENTLY CREATED</span><h2>Your link shelf</h2></div>
+        <span class="step">03 / 03</span>
+      </div>
+      <div id="recent-links" class="recent-links">
+        <p class="empty-state">Your newly shortened links will appear here.</p>
+      </div>
+    </section>
+
+    <footer><span>SHORTFORM / URL TOOL</span><span>BUILT FOR THE QUICK SHARE</span></footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
