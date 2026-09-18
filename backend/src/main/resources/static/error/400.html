@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invalid link | Shortform</title>
+  <style>
+    :root {
+      --ink: #17251f;
+      --muted: #708078;
+      --paper: #f3f4ed;
+      --acid: #d8f45a;
+      --coral: #ff8067;
+      --line: #d8dfd8;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: "Segoe UI", sans-serif;
+    }
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      content: "";
+      opacity: .48;
+      background-image: linear-gradient(rgba(23, 37, 31, .035) 1px, transparent 1px), linear-gradient(90deg, rgba(23, 37, 31, .035) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+    main {
+      width: min(680px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: 28px 0;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand { font-size: 20px; font-weight: 700; letter-spacing: -.04em; }
+    .mark {
+      display: inline-grid;
+      width: 29px;
+      height: 29px;
+      margin-right: 8px;
+      place-items: center;
+      background: var(--acid);
+      border-radius: 50%;
+    }
+    .status {
+      color: var(--muted);
+      font: 10px monospace;
+      letter-spacing: .12em;
+    }
+    section { padding: 18vh 0 15vh; }
+    .eyebrow {
+      margin: 0 0 18px;
+      color: var(--coral);
+      font: 11px monospace;
+      letter-spacing: .14em;
+    }
+    h1 {
+      max-width: 600px;
+      margin: 0;
+      font-size: clamp(46px, 9vw, 88px);
+      line-height: .94;
+      letter-spacing: -.07em;
+    }
+    h1 span { color: var(--coral); }
+    p {
+      max-width: 470px;
+      margin: 28px 0 0;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.55;
+    }
+    .details {
+      margin-top: 32px;
+      padding: 16px 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font: 12px monospace;
+    }
+    a {
+      display: inline-block;
+      margin-top: 28px;
+      padding: 14px 18px;
+      color: var(--ink);
+      background: var(--acid);
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    a:hover { transform: translateY(-1px); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="brand"><span class="mark">↗</span>shortform</div>
+      <div class="status">REQUEST NOT ACCEPTED</div>
+    </header>
+    <section>
+      <p class="eyebrow">ERROR / 400</p>
+      <h1>That link needs a little <span>fixing.</span></h1>
+      <p>The destination must be a complete HTTP or HTTPS URL, such as https://example.com.</p>
+      <div class="details">BAD REQUEST · THE SHORT LINK WAS NOT REDIRECTED</div>
+      <a href="javascript:history.back()">Go back</a>
+    </section>
+  </main>
+</body>
+</html>

@@ -34,7 +34,7 @@ public class UrlController {
     // → DB assigns the id, Hibernate stamps createdAt/updatedAt
     @PostMapping("/shorten")
     public Url shorten(@Valid @RequestBody ShortenRequest request) {
-        return urlRepository.save(new Url(request.url(), generateShortCode()));
+        return urlRepository.save(new Url(validateDestination(request.url()).toString(), generateShortCode()));
     }
 
     // PUT /shorten/{shortCode}  { "url": "https://new-url" }
@@ -42,7 +42,7 @@ public class UrlController {
     @PutMapping("/shorten/{shortCode}")
     public Url updateUrl(@PathVariable String shortCode, @Valid @RequestBody ShortenRequest request) {
         Url existing = findByCode(shortCode);
-        existing.setUrl(request.url());
+        existing.setUrl(validateDestination(request.url()).toString());
         return urlRepository.save(existing);
     }
 
@@ -65,11 +65,31 @@ public class UrlController {
     @GetMapping("/shorten/{shortCode}")
     public ResponseEntity<Void> redirect(@PathVariable String shortCode) {
         Url existing = findByCode(shortCode);
+        URI destination = validateDestination(existing.getUrl());
         urlRepository.incrementStats(shortCode);
 
         return ResponseEntity.status(HttpStatus.FOUND)
-                .location(URI.create(existing.getUrl()))
+            .location(destination)
                 .build();
+    }
+
+    private URI validateDestination(String url) {
+        final URI destination;
+        try {
+            destination = URI.create(url.trim());
+        } catch (IllegalArgumentException exception) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid destination URL");
+        }
+
+        String scheme = destination.getScheme();
+        if (destination.getHost() == null
+                || (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme))) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Destination must use an HTTP or HTTPS URL");
+        }
+
+        return destination;
     }
 
     private Url findByCode(String shortCode) {
