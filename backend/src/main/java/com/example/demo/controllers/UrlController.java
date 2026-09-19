@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -21,6 +22,7 @@ import java.net.URI;
 import java.util.concurrent.ThreadLocalRandom;
 
 @RestController
+@RequestMapping("/api")
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5500", "http://127.0.0.1:5500"})
 public class UrlController {
 
@@ -30,14 +32,14 @@ public class UrlController {
         this.urlRepository = urlRepository;
     }
 
-    // POST /shorten  { "url": "https://..." }
+    // POST /api/shorten  { "url": "https://..." }
     // → DB assigns the id, Hibernate stamps createdAt/updatedAt
     @PostMapping("/shorten")
     public Url shorten(@Valid @RequestBody ShortenRequest request) {
         return urlRepository.save(new Url(validateDestination(request.url()).toString(), generateShortCode()));
     }
 
-    // PUT /shorten/{shortCode}  { "url": "https://new-url" }
+    // PUT /api/shorten/{shortCode}  { "url": "https://new-url" }
     // → update the long URL; @UpdateTimestamp refreshes updatedAt, createdAt stays
     @PutMapping("/shorten/{shortCode}")
     public Url updateUrl(@PathVariable String shortCode, @Valid @RequestBody ShortenRequest request) {
@@ -46,7 +48,7 @@ public class UrlController {
         return urlRepository.save(existing);
     }
 
-    // DELETE /shorten/{shortCode} → remove the short URL
+    // DELETE /api/shorten/{shortCode} → remove the short URL
     // 204 on success, 404 when the code doesn't exist
     @DeleteMapping("/shorten/{shortCode}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -55,13 +57,13 @@ public class UrlController {
         urlRepository.delete(existing);
     }
 
-    // GET /search/{shortCode} → look up a code for the Find button.
+    // GET /api/search/{shortCode} → look up a code for the Find button.
     @GetMapping("/search/{shortCode}")
     public Url getByCode(@PathVariable String shortCode){
     return findByCode(shortCode);
     }
 
-    // GET /shorten/{shortCode} -> redirect a browser to the original URL
+    // GET /api/shorten/{shortCode} -> redirect a browser to the original URL
     @GetMapping("/shorten/{shortCode}")
     public ResponseEntity<Void> redirect(@PathVariable String shortCode) {
         Url existing = findByCode(shortCode);
@@ -71,6 +73,12 @@ public class UrlController {
         return ResponseEntity.status(HttpStatus.FOUND)
             .location(destination)
                 .build();
+    }
+
+    // GET /api/shorten/{shortCode}/stats -> return the click count
+    @GetMapping("/shorten/{shortCode}/stats")
+    public int getStats(@PathVariable String shortCode) {
+        return findByCode(shortCode).getStats();
     }
 
     private URI validateDestination(String url) {
