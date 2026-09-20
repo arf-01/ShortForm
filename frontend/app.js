@@ -133,10 +133,35 @@ document.querySelector("#delete-button").addEventListener("click", async () => {
   }
 });
 
+async function copyText(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const textArea = document.createElement("textarea");
+  textArea.value = text;
+  textArea.setAttribute("readonly", "");
+  textArea.style.position = "fixed";
+  textArea.style.left = "-9999px";
+  document.body.appendChild(textArea);
+  textArea.select();
+  const copied = document.execCommand("copy");
+  textArea.remove();
+
+  if (!copied) throw new Error("Copy is blocked by the browser");
+}
+
 document.querySelector("#copy-button").addEventListener("click", async (event) => {
-  await navigator.clipboard.writeText(shortUrl(activeUrl.shortCode));
-  event.currentTarget.textContent = "Copied";
-  setTimeout(() => { event.currentTarget.textContent = "Copy link"; }, 1400);
+  const button = event.currentTarget;
+  try {
+    await copyText(shortUrl(activeUrl.shortCode));
+    button.textContent = "Copied";
+    setTimeout(() => { button.textContent = "Copy link"; }, 1400);
+  } catch (error) {
+    button.textContent = "Copy failed";
+    setTimeout(() => { button.textContent = "Copy link"; }, 1400);
+  }
 });
 
 recentLinks.addEventListener("click", async (event) => {
