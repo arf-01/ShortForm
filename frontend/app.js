@@ -1,4 +1,4 @@
-const API_BASE = "/api";
+const API_BASE = `${window.location.origin}/api`;
 const recentUrls = [];
 
 const shortenForm = document.querySelector("#shorten-form");
