@@ -3,6 +3,7 @@ package com.example.demo.controllers;
 import com.example.demo.dto.ShortenRequest;
 import com.example.demo.model.Url;
 import com.example.demo.repository.UrlRepository;
+import com.example.demo.service.IdGeneratorService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
-import java.util.concurrent.ThreadLocalRandom;
 
 @RestController
 @RequestMapping("/api")
@@ -27,16 +27,19 @@ import java.util.concurrent.ThreadLocalRandom;
 public class UrlController {
 
     private final UrlRepository urlRepository;
+    private final IdGeneratorService idGeneratorService;
 
-    public UrlController(UrlRepository urlRepository) {
+    public UrlController(UrlRepository urlRepository, IdGeneratorService idGeneratorService) {
         this.urlRepository = urlRepository;
+        this.idGeneratorService = idGeneratorService;
     }
 
     // POST /api/shorten  { "url": "https://..." }
     // → DB assigns the id, Hibernate stamps createdAt/updatedAt
     @PostMapping("/shorten")
     public Url shorten(@Valid @RequestBody ShortenRequest request) {
-        return urlRepository.save(new Url(validateDestination(request.url()).toString(), generateShortCode()));
+        String shortCode = idGeneratorService.getNextCode();
+        return urlRepository.save(new Url(validateDestination(request.url()).toString(), shortCode));
     }
 
     // PUT /api/shorten/{shortCode}  { "url": "https://new-url" }
@@ -106,9 +109,4 @@ public class UrlController {
                         HttpStatus.NOT_FOUND, "No URL with short code " + shortCode));
     }
 
-    // six random digits, e.g. "483920"
-    private String generateShortCode() {
-        int code = ThreadLocalRandom.current().nextInt(100000, 1000000);
-        return String.valueOf(code);
-    }
 }

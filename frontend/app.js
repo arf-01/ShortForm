@@ -1,4 +1,5 @@
-const API_BASE = `${window.location.origin}/api`;
+//const API_BASE = `${window.location.origin}/api`;
+ const API_BASE = "http://localhost:8081/api";
 const recentUrls = [];
 
 const shortenForm = document.querySelector("#shorten-form");

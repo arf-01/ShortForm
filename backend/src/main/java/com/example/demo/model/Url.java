@@ -2,12 +2,10 @@ package com.example.demo.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -15,42 +13,46 @@ import java.time.LocalDateTime;
 @Table(name = "urls")
 public class Url {
 
-    // DB-assigned AUTO_INCREMENT id — never set it from code
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-
-    private String url;
-    @Column(nullable = false, unique = true)
+    @Column(name = "short_code", length = 16)
     private String shortCode;
 
-    // how many times GET /shorten/{shortCode} has fetched this row
+    @Lob
+    @Column(name = "long_url", nullable = false, columnDefinition = "TEXT")
+    private String longUrl;
+
+    @Column(name = "creator_id")
+    private Long creatorId;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "expires_at")
+    private LocalDateTime expiresAt;
+
     @Column(nullable = false)
     private int stats = 0;
 
-    // Hibernate sets these automatically on insert/update — never touch them in code
-    @CreationTimestamp
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
+    @Column(nullable = false)
+    private short status = 1;
 
     // required by Hibernate to instantiate entities when loading rows
     protected Url() {
     }
 
     public Url(String url, String shortCode) {
-        this.url = url;
+        this.longUrl = url;
         this.shortCode = shortCode;
     }
 
-    // getters — Jackson uses these to serialize the response
-    public int getId() {
-        return id;
+    // Temporary compatibility accessors until the controller and API are updated.
+    public String getUrl() {
+        return longUrl;
     }
 
-    public String getUrl() {
-        return url;
+    public String getLongUrl() {
+        return longUrl;
     }
 
     public String getShortCode() {
@@ -61,16 +63,27 @@ public class Url {
         return createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
+    public Long getCreatorId() {
+        return creatorId;
+    }
+
+    public LocalDateTime getExpiresAt() {
+        return expiresAt;
     }
 
     public int getStats() {
         return stats;
     }
 
-    // setters — only for fields a client may actually change
+    public short getStatus() {
+        return status;
+    }
+
     public void setUrl(String url) {
-        this.url = url;
+        this.longUrl = url;
+    }
+
+    public void setLongUrl(String longUrl) {
+        this.longUrl = longUrl;
     }
 }
