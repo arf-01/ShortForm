@@ -6,7 +6,6 @@ import com.example.demo.repository.UrlRepository;
 import com.example.demo.service.IdGeneratorService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -64,18 +63,6 @@ public class UrlController {
     @GetMapping("/search/{shortCode}")
     public Url getByCode(@PathVariable String shortCode){
     return findByCode(shortCode);
-    }
-
-    // GET /api/shorten/{shortCode} -> redirect a browser to the original URL
-    @GetMapping("/shorten/{shortCode}")
-    public ResponseEntity<Void> redirect(@PathVariable String shortCode) {
-        Url existing = findByCode(shortCode);
-        URI destination = validateDestination(existing.getUrl());
-        urlRepository.incrementStats(shortCode);
-
-        return ResponseEntity.status(HttpStatus.FOUND)
-            .location(destination)
-                .build();
     }
 
     // GET /api/shorten/{shortCode}/stats -> return the click count
