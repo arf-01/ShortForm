@@ -4,6 +4,7 @@ import com.example.demo.dto.ShortenRequest;
 import com.example.demo.model.Url;
 import com.example.demo.repository.UrlRepository;
 import com.example.demo.service.IdGeneratorService;
+import com.example.demo.service.UrlCacheService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,10 +28,15 @@ public class UrlController {
 
     private final UrlRepository urlRepository;
     private final IdGeneratorService idGeneratorService;
+    private final UrlCacheService urlCacheService;
 
-    public UrlController(UrlRepository urlRepository, IdGeneratorService idGeneratorService) {
+    public UrlController(
+            UrlRepository urlRepository,
+            IdGeneratorService idGeneratorService,
+            UrlCacheService urlCacheService) {
         this.urlRepository = urlRepository;
         this.idGeneratorService = idGeneratorService;
+        this.urlCacheService = urlCacheService;
     }
 
     // POST /api/shorten  { "url": "https://..." }
@@ -38,7 +44,10 @@ public class UrlController {
     @PostMapping("/shorten")
     public Url shorten(@Valid @RequestBody ShortenRequest request) {
         String shortCode = idGeneratorService.getNextCode();
-        return urlRepository.save(new Url(validateDestination(request.url()).toString(), shortCode));
+        String destination = validateDestination(request.url()).toString();
+        Url saved = urlRepository.save(new Url(destination, shortCode));
+        urlCacheService.put(shortCode, destination);
+        return saved;
     }
 
     // PUT /api/shorten/{shortCode}  { "url": "https://new-url" }
@@ -46,8 +55,11 @@ public class UrlController {
     @PutMapping("/shorten/{shortCode}")
     public Url updateUrl(@PathVariable String shortCode, @Valid @RequestBody ShortenRequest request) {
         Url existing = findByCode(shortCode);
-        existing.setUrl(validateDestination(request.url()).toString());
-        return urlRepository.save(existing);
+        String destination = validateDestination(request.url()).toString();
+        existing.setUrl(destination);
+        Url saved = urlRepository.save(existing);
+        urlCacheService.put(shortCode, destination);
+        return saved;
     }
 
     // DELETE /api/shorten/{shortCode} → remove the short URL
@@ -57,6 +69,7 @@ public class UrlController {
     public void deleteUrl(@PathVariable String shortCode) {
         Url existing = findByCode(shortCode);
         urlRepository.delete(existing);
+        urlCacheService.delete(shortCode);
     }
 
     // GET /api/search/{shortCode} → look up a code for the Find button.

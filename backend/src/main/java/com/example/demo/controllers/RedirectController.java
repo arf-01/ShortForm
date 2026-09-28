@@ -2,6 +2,7 @@ package com.example.demo.controllers;
 
 import com.example.demo.model.Url;
 import com.example.demo.repository.UrlRepository;
+import com.example.demo.service.UrlCacheService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,18 +16,27 @@ import java.net.URI;
 public class RedirectController {
 
     private final UrlRepository urlRepository;
+    private final UrlCacheService urlCacheService;
 
-    public RedirectController(UrlRepository urlRepository) {
+    public RedirectController(UrlRepository urlRepository, UrlCacheService urlCacheService) {
         this.urlRepository = urlRepository;
+        this.urlCacheService = urlCacheService;
     }
 
     @GetMapping("/{shortCode:[0-9A-Za-z]+}")
     public ResponseEntity<Void> redirect(@PathVariable String shortCode) {
-        Url existing = urlRepository.findByShortCode(shortCode)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "No URL with short code " + shortCode));
+        String cachedUrl = urlCacheService.get(shortCode);
+        String destinationUrl = cachedUrl;
 
-        URI destination = validateDestination(existing.getUrl());
+        if (destinationUrl == null) {
+            Url existing = urlRepository.findByShortCode(shortCode)
+                .orElseThrow(() -> new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "No URL with short code " + shortCode));
+            destinationUrl = existing.getUrl();
+            urlCacheService.put(shortCode, destinationUrl);
+        }
+
+        URI destination = validateDestination(destinationUrl);
         urlRepository.incrementStats(shortCode);
 
         return ResponseEntity.status(HttpStatus.FOUND)
