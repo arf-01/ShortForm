@@ -25,9 +25,7 @@ public class RedirectController {
 
     @GetMapping("/{shortCode:[0-9A-Za-z]+}")
     public ResponseEntity<Void> redirect(@PathVariable String shortCode) {
-        String cachedUrl = urlCacheService.get(shortCode);
-        String destinationUrl = cachedUrl;
-
+        String destinationUrl = urlCacheService.get(shortCode);
         if (destinationUrl == null) {
             Url existing = urlRepository.findByShortCode(shortCode)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -37,7 +35,6 @@ public class RedirectController {
         }
 
         URI destination = validateDestination(destinationUrl);
-        urlRepository.incrementStats(shortCode);
 
         return ResponseEntity.status(HttpStatus.FOUND)
                 .location(destination)

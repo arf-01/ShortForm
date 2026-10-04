@@ -1,6 +1,5 @@
-const isLocal = ["localhost", "127.0.0.1"].includes(window.location.hostname);
-const API_BASE = isLocal ? "http://localhost:8081/api" : "https://api.example.com/api";
-const PUBLIC_BASE = isLocal ? "http://localhost:8081" : "https://short.example.com";
+const API_BASE = `${window.location.origin}/api`;
+const PUBLIC_BASE = window.location.origin;
 const recentUrls = [];
 
 const shortenForm = document.querySelector("#shorten-form");
