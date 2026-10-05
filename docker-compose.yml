@@ -1,15 +1,13 @@
 services:
   frontend:
-    build:
-      context: ./frontend
+    image: ghcr.io/arf-01/shortform-frontend:latest
     ports:
       - "80:80"
     depends_on:
       - backend
 
   backend:
-    build:
-      context: ./backend
+    image: ghcr.io/arf-01/shortform-backend:latest
     expose:
       - "8081"
     environment:
