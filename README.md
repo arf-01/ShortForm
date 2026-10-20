@@ -7,9 +7,26 @@ Live site: [http://20.198.121.219](http://20.198.121.219)
 
 ## Architecture
 
-```text
-Browser -> Nginx frontend -> Spring Boot backend -> MySQL
-                                               \-> Redis
+```mermaid
+flowchart TD
+    Client(["User / Browser"])
+
+    subgraph Docker ["Docker Compose Network"]
+        Frontend["Nginx (Frontend & Reverse Proxy)<br/><code>Port 80</code>"]
+        Backend["Spring Boot (API Service)<br/><code>Port 8081</code>"]
+
+        subgraph DataLayer ["Data & Caching Layer"]
+            Redis[("Redis 7<br/><code>Cache</code>")]
+            MySQL[("MySQL 8.4<br/><code>Primary Database</code>")]
+            Volume[("Docker Volume<br/><code>mysql-data</code>")]
+        end
+    end
+
+    Client -->|HTTP Requests :80| Frontend
+    Frontend -->|Proxy API & Short URL Redirects| Backend
+    Backend -->|Cache Reads / Writes| Redis
+    Backend -->|Store URLs & Sequences| MySQL
+    MySQL -.->|Persistent Storage| Volume
 ```
 
 The application services are published to GitHub Container Registry (GHCR):
